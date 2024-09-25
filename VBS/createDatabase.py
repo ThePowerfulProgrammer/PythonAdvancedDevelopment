@@ -57,7 +57,35 @@ def home():
     # book = Book(title="Berserk Volume 26", author="Kentaro Miura", rating=7)
     # db.session.add(book)
     # db.session.commit()
-    return "<h1>Hello world</h1>"
+    all_books = db.session.execute(db.select(Book).order_by(Book.id)).scalars()
+    return render_template(template_name_or_list="index.html", all_books=all_books)
+
+@app.route("/add", methods=['GET', 'POST'])
+def add():
+    if request.method == "POST":
+        book = Book(
+            title=request.form['bName'],
+            author=request.form['bAuthor'],
+            rating=request.form['rating']
+        )
+
+        db.session.add(book)
+        db.session.commit()
+        
+        return render_template(template_name_or_list='add.html')
+    
+    return render_template(template_name_or_list='add.html')
+    
+@app.route("/edit/<int:pk>", methods=['GET', 'POST'])
+def edit(pk):
+    if request.method == "POST":
+        book = db.get_or_404(Book,ident=pk)
+        print(book)
+        return render_template(template_name_or_list='index.html')
+    
+        
+    book = db.get_or_404(Book,ident=pk)
+    return render_template(template_name_or_list='edit.html', pk=pk, book=book)
 
 
 if __name__ == "__main__":
