@@ -13,12 +13,10 @@
       <ul>
           {% for book in all_books  %}
 
-              {% for k,v in book.items() %}
                 
-                <li>{{ v }}</li>
+                <li><a href="{{url_for('delete', id=book.id)}}">Delete</a> {{ book.title }} - {{ book.author }} - {{ book.rating }} <a href="{{url_for('edit', pk=book.id, book=book)}}"> Edit Rating</a></li>
                 
-              {% endfor %}
-              
+
 
           {% endfor %}
 
@@ -33,5 +31,7 @@
     
 
     <a href="{{ url_for('add')}}">Add New Book</a>
+  
+
   </body>
 </html>

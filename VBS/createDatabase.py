@@ -78,14 +78,24 @@ def add():
     
 @app.route("/edit/<int:pk>", methods=['GET', 'POST'])
 def edit(pk):
-    if request.method == "POST":
-        book = db.get_or_404(Book,ident=pk)
-        print(book)
-        return render_template(template_name_or_list='index.html')
-    
-        
     book = db.get_or_404(Book,ident=pk)
+    if request.method == "POST":
+        book_id = request.form['id']
+        book = db.get_or_404(Book, book_id)
+        book.rating = request.form['rating']
+        db.session.commit()
+        return redirect(url_for('home'))
     return render_template(template_name_or_list='edit.html', pk=pk, book=book)
+
+@app.route("/delete", methods=['GET', 'POST'])
+def delete():
+    book_id = request.args.get('id')
+    print(book_id)
+    book = db.get_or_404(Book, book_id)
+    db.session.delete(book)
+    db.session.commit()
+    return redirect(url_for('home'))
+
 
 
 if __name__ == "__main__":
