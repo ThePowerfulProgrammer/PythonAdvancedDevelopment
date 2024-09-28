@@ -2,3 +2,5 @@ findAModernCafe/templates
 findAModernCafe/static
 findAModernCafe/requirements.txt
 VBS/books-collection.db
+MyMovieWatchList/templates
+MyMovieWatchList/static
