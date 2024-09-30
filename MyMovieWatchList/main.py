@@ -5,7 +5,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Float
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 import requests
 
 
@@ -38,31 +38,64 @@ class Movie(db.Model):
         
         return f"<Movie {self.title}>"
 
+
+class MyForm(FlaskForm):
+    
+    name = StringField(label="Movie name", validators=[DataRequired(), Length(min=1)])
+
 # DB created
 # with app.app_context():
 #     db.create_all()
 
 with app.app_context():
     
-    movie = Movie(
-            title="Avatar The Way of Water",
-            year=2022,
-            description="Set more than a decade after the events of the first film, learn the story of the Sully family (Jake, Neytiri, and their kids), the trouble that follows them, the lengths they go to keep each other safe, the battles they fight to stay alive, and the tragedies they endure.",
-            rating=7.3,
-            ranking=9,
-            review="I liked the water.",
-            img_url="https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg"
-        )
-    db.session.add(movie)
+    pass
+
+
+
+
+@app.route("/")
+def home():
+    # Grab all movies
+    all_movies = db.session.execute(db.select(Movie).order_by(Movie.id)).scalars()
+    
+    return render_template(template_name_or_list="index.html", all_movies=all_movies)
+
+@app.route("/edit/<int:id>", methods=['GET', 'POST'])
+def update(id):    
+    if request.method == "POST":
+        movieRating = request.form['rating']
+        movieReview = request.form['review']
+        movie = db.get_or_404(Movie, id)
+        
+        movie.rating = movieRating
+        movie.review = movieReview
+        
+        db.session.commit()
+        
+        return redirect(url_for('home'))
+    else:
+        return render_template(template_name_or_list='edit.html', id=id)
+
+@app.route('/delete', methods=['GET', 'POST'])
+def delete():
+    id = request.args.get('id')
+    
+    movie = db.get_or_404(Movie, id)
+    db.session.delete(movie)
     db.session.commit()
+    
+    return redirect(url_for('home'))
+
+@app.route("/add", methods=['GET', 'POST'])
+def add():
+    form = MyForm()
+    
+    if request.method == "GET":
+       return render_template(template_name_or_list='add.html', form=form)
+    
 
 
 
-
-# @app.route("/")
-# def home():
-#     return render_template("index.html")
-
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
