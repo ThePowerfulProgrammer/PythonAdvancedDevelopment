@@ -4,3 +4,4 @@ findAModernCafe/requirements.txt
 VBS/books-collection.db
 MyMovieWatchList/templates
 MyMovieWatchList/static
+MyMovieWatchList/secret.py
