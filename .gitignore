@@ -5,3 +5,5 @@ VBS/books-collection.db
 MyMovieWatchList/templates
 MyMovieWatchList/static
 MyMovieWatchList/secret.py
+CAFEAPI/instance
+CAFEAPI/requirements.txt
