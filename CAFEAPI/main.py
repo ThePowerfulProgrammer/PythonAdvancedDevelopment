@@ -89,8 +89,58 @@ def getRecord():
     else:
         
         return "<h1>Hello world</h1>"
+    
+@app.route("/all", methods=['GET'])
+def getAllRecords():
+    if request.method == "GET":
+        
+        rows = db.session.execute(db.select(Cafe)).scalars()
+        dict = {"cafe": []}
+        
+        for row in rows:
+            data = {"name":row.name,
+                    "map_url":row.map_url,
+                    "img_url":row.img_url, 
+                    "location":row.location,
+                    "seats":row.seats, 
+                    "has_toilet":row.has_toilet,
+                    "has_wifi":row.has_wifi,
+                    "has_sockets":row.has_sockets,
+                    "can_take_calls":row.can_take_calls,
+                    "coffee_price":row.coffee_price}
+            
+            dict['cafe'].append(data)
+                
+        return jsonify(dict)
 
+@app.route("/search", methods=['GET'])
+def searchRecord():
+        query_params = request.args
+        
+        location = query_params.get('name')
+        search = f"%{location}%"
+        cafes = Cafe.query.filter(Cafe.location.like(search)).all()
+            
+        if cafes:
+                
+            dict = {"cafe":[]}
+            for cafe in cafes:
+                data = {"name":cafe.name,
+                        "map_url":cafe.map_url,
+                        "img_url":cafe.img_url, 
+                        "location":cafe.location,
+                        "seats":cafe.seats, 
+                        "has_toilet":cafe.has_toilet,
+                        "has_wifi":cafe.has_wifi,
+                        "has_sockets":cafe.has_sockets,
+                        "can_take_calls":cafe.can_take_calls,
+                        "coffee_price":cafe.coffee_price}
+                dict['cafe'].append(data)
 
+            return jsonify(dict)
+        
+        else:
+            return jsonify(error={"Not found": "Sorry we do not have a cafe at that location"})
 
 # HTTP POST - Create Record
 
