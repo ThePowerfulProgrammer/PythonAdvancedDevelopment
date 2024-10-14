@@ -1,8 +1,8 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Boolean
-from sqlalchemy import func
+from sqlalchemy import func, exists
 import random
 
 
@@ -119,7 +119,9 @@ def searchRecord():
         
         location = query_params.get('name')
         search = f"%{location}%"
+        print(search)
         cafes = Cafe.query.filter(Cafe.location.like(search)).all()
+        print(cafes)
             
         if cafes:
                 
@@ -143,10 +145,73 @@ def searchRecord():
             return jsonify(error={"Not found": "Sorry we do not have a cafe at that location"})
 
 # HTTP POST - Create Record
+@app.route("/add", methods=["POST"])
+def addCafe():
+    if request.method == "POST":
+        cafe = Cafe(
+            name=request.args.get("name"),
+            map_url=request.args.get("map_url"),
+            img_url=request.args.get("img_url"),
+            location=request.args.get("location"),
+            has_sockets=True if request.args.get("sockets") == "Yes" else False,
+            has_toilet=True if request.args.get("toilet") == "Yes" else False,
+            has_wifi=True if request.args.get("wifi") == "Yes" else False,
+            can_take_calls=True if request.args.get("calls") == "Yes" else False,
+            seats=request.args.get("seats"),
+            coffee_price=request.args.get("coffee_price"),
+        )
+        db.session.add(cafe)
+        db.session.commit()
+        return jsonify(response={"success": "Successfully added the new cafe"})
+    
+
+
+
 
 # HTTP PUT/PATCH - Update Record
+@app.route("/update-price/<int:cafe_id>", methods=["GET", "POST", "PATCH"])
+def updateCoffeePrice(cafe_id):
+
+    exists = db.session.query(db.exists().where(Cafe.id == cafe_id)).scalar()
+    
+    if exists:
+            
+
+        print(cafe_id)
+        cafe = db.get_or_404(Cafe,cafe_id)
+        new_price = request.args.get("new_price")
+        
+        print(cafe)
+        print(new_price)
+        print(cafe.id)
+        print(cafe.coffee_price)
+        
+        cafe.coffee_price = new_price
+        db.session.commit()
+
+        return redirect(url_for("home"))
+    else:
+        return jsonify(error={"Unsuccessful": "Cafe does not exist"})
+
 
 # HTTP DELETE - Delete Record
+@app.route("/report-closed/<int:cafe_id>", methods=['DELETE'])
+def deleteCafe(cafe_id):
+
+    API_KEY = "APIKEY"
+    key = request.args.get("api-key")
+
+    if key != API_KEY:
+        return jsonify(error={"Status Code": "401 error"})
+    else:
+        cafe = db.get_or_404(Cafe, cafe_id)
+        rows = db.session.execute(db.select(func.count()).select_from(Cafe)).scalar()
+        
+        db.session.delete(cafe)
+        db.session.commit()
+        return jsonify(success={"Status Code": "200 Cafe Deleted"})
+    
+    
 
 
 if __name__ == '__main__':
