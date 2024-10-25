@@ -11,3 +11,7 @@ Blog/templates
 Blog/static
 Blog/instance
 Blog/requirements.txt
+userManagementSite/instance
+userManagementSite/static
+userManagementSite/requirements.txt
+
