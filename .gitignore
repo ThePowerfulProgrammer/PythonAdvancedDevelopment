@@ -7,3 +7,7 @@ MyMovieWatchList/static
 MyMovieWatchList/secret.py
 CAFEAPI/instance
 CAFEAPI/requirements.txt
+Blog/templates
+Blog/static
+Blog/instance
+Blog/requirements.txt
