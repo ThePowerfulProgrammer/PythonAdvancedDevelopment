@@ -14,4 +14,8 @@ Blog/requirements.txt
 userManagementSite/instance
 userManagementSite/static
 userManagementSite/requirements.txt
+MyBlog/instance
+MyBlog/static
+MyBlog/requirements.txt
+MyBlog/todo.txt
 
